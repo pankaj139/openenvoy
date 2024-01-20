@@ -31,38 +31,45 @@ function analyzeCode(filePath,fileExt) {
   let commentLines = 0;
   let number0fVariables = 0;
   let inBlockComment = false;
+  let inCodeBlock = false;
 
   lines.forEach(line => {
     totalLines++;
 
     const trimmedLine = line.trim();
+    if(inCodeBlock){
+        if(trimmedLine.indexOf('`') !== -1){
+            inCodeBlock = false;
+        }
+        return;
+    }
 
     if(trimmedLine.startsWith(fileLanguageDetails.multilinecommentstart)) {
         inBlockComment = true;
     }
-    if(inBlockComment) {
+    if(inBlockComment ) {
         commentLines++;
         if(trimmedLine.endsWith(fileLanguageDetails.multilinecommentend)){
             inBlockComment = false;
-            return;
         }
+        return;
     }
-    if(trimmedLine == ''){
+    if(trimmedLine == '' ){
         blankLines++;
         return;
     }
-    if(trimmedLine.startsWith(fileLanguageDetails.inlineComment)){
+    if(trimmedLine.startsWith(fileLanguageDetails.inlineComment) ){
         commentLines++;
         return;
     }
-    if(fileLanguageDetails.variable.includes(trimmedLine.split(' ')[0])){
+    if(fileLanguageDetails.variable.includes(trimmedLine.split(' ')[0]) ){
+        if(trimmedLine.indexOf('`') !==-1){
+            inCodeBlock = true;
+        }
         number0fVariables++;
-        return;
     }
-    
 
   });
-
 
   const loc = totalLines - (blankLines + commentLines);
 
